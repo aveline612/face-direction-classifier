@@ -1,19 +1,6 @@
-# Core
-streamlit==1.28.1
-torch==2.0.1
-torchvision==0.15.2
-pillow==10.1.0
-
-# Data & Visualization
-numpy==1.24.3
-pandas==2.0.3
-plotly==5.17.0
-
-# Web & Utilities
-requests==2.31.0
-python-multipart==0.0.6
-
-# Development (optional)
-pytest==7.4.2
-black==23.9.1
-flake8==6.1.0
+streamlit>=1.28.0
+torch>=2.0.0
+torchvision>=0.15.0
+opencv-python-headless>=4.6.0
+numpy>=1.21.0
+Pillow>=9.0.0

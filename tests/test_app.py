@@ -12,7 +12,7 @@ import plotly.express as px
 import sys
 
 sys.path.append('..')
-from src.inference import get_classifier
+from src.inference import FaceDirectionClassifier
 
 # Configure logging
 logging.basicConfig(
@@ -47,7 +47,7 @@ def init_classifier():
     try:
         if st.session_state.classifier is None:
             with st.spinner("🚀 Loading AI model..."):
-                classifier = get_classifier()
+                classifier = get_classifier('../models/face_direction_classifier.pth')
                 st.session_state.classifier = classifier
                 st.success("✅ Model loaded successfully!")
                 logger.info("Classifier initialized")

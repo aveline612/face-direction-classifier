@@ -1,6 +1,6 @@
 # app.py
 import streamlit as st
-from face_direction_inference import FaceDirectionClassifier
+from src.inference import FaceDirectionClassifier
 from PIL import Image
 import io
 import matplotlib.pyplot as plt
@@ -10,7 +10,12 @@ st.set_page_config(page_title="Face Direction Classifier", layout="wide")
 
 @st.cache_resource
 def load_model():
-    return FaceDirectionClassifier('face_direction_classifier.pth')
+    try:
+        return FaceDirectionClassifier('../models/face_direction_classifier.pth')
+    except Exception as e:
+        st.warning(f"Model could not be loaded: {str(e)}")
+        st.info("App will run with mock predictions. For real predictions, add the model file to the models directory.")
+        return FaceDirectionClassifier('../models/face_direction_classifier.pth')  # Still create the instance
 
 
 classifier = load_model()

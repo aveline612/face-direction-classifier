@@ -12,7 +12,7 @@ An interactive **Streamlit web application** that classifies face direction (Fro
 ### Local Development
 ```bash
 # Clone repository
-git clone https://github.com/aveline/face-direction-classifier.git
+git clone https://github.com/aveline612/face-direction-classifier.git
 cd face-direction-classifier
 
 # Install dependencies

@@ -125,13 +125,26 @@ with col1:
     uploaded_file = st.file_uploader("Choose an image...", type=['jpg', 'jpeg', 'png'])
     
     if uploaded_file is not None:
-      try:
-        image = Image.open(uploaded_file).convert("RGB")
-        # Show the original image exactly as uploaded
-        st.image(image, caption="Uploaded Image", width=400)
-      except Exception as e:
-        st.error(f"Invalid image file: {e}")
-        uploaded_file = None
+        # Validate file size (limit to 5 MB)
+        if uploaded_file.size > 5 * 1024 * 1024:
+            st.error("File too large. Please upload an image under 5 MB.")
+            uploaded_file = None
+        else:
+            try:
+                # Open and convert to RGB safely
+                image = Image.open(uploaded_file).convert("RGB")
+
+                # Check minimum dimensions
+                if image.width < 50 or image.height < 50:
+                    st.error("Image too small (minimum 50x50 pixels).")
+                    uploaded_file = None
+                else:
+                    # Show the original image exactly as uploaded
+                    st.image(image, caption="Uploaded Image", width=400)
+            except Exception as e:
+                st.error(f"Invalid image file: {e}")
+                uploaded_file = None
+
 
 
 

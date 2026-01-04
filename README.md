@@ -1,14 +1,3 @@
----
-title: Face Direction Classifier
-emoji: 🧭
-colorFrom: blue
-colorTo: red
-sdk: streamlit
-sdk_version: latest
-app_file: app.py
-pinned: false
-license: Apache-2.0
----
 
 # Face Direction Classifier 🧭
 
@@ -31,3 +20,4 @@ pip install -r requirements.txt
 
 # Run locally with Streamlit
 streamlit run app.py
+

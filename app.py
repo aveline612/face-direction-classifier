@@ -99,6 +99,19 @@ def create_confidence_plot(probabilities):
     
     return fig
 
+def prepare_image_for_model(image, target_size=(224, 224), max_size=(1024, 1024)):
+    """
+    Prepare image for model inference:
+    - If image is too large, shrink proportionally to max_size.
+    - Always resize to target_size for the model.
+    """
+    img = image.copy()
+    if img.width > max_size[0] or img.height > max_size[1]:
+        img.thumbnail(max_size, Image.Resampling.LANCZOS)
+    img = img.resize(target_size, Image.Resampling.LANCZOS)
+    return img
+
+
 # Streamlit app
 st.set_page_config(page_title="Face Direction Classifier", layout="wide")
 
@@ -112,54 +125,47 @@ with col1:
     uploaded_file = st.file_uploader("Choose an image...", type=['jpg', 'jpeg', 'png'])
     
     if uploaded_file is not None:
-        # Validate file size (limit to 5 MB for example)
-        if uploaded_file.size > 5 * 1024 * 1024:
-            st.error("File too large. Please upload an image under 5 MB.")
-            uploaded_file = None
-        else:
-            try:
-                # Open and validate image
-                image = Image.open(uploaded_file).convert("RGB")
+      try:
+        image = Image.open(uploaded_file).convert("RGB")
+        # Show the original image exactly as uploaded
+        st.image(image, caption="Uploaded Image", width=400)
+      except Exception as e:
+        st.error(f"Invalid image file: {e}")
+        uploaded_file = None
 
-                # Resize image to a safe size (224x224 for ResNet)
-                image = image.resize((224, 224))
 
-                st.image(image, caption="Uploaded Image (resized to 224x224)", width=400)
-            except Exception as e:
-                st.error(f"Invalid image file: {e}")
-                uploaded_file = None
 
 
 with col2:
     st.header("Analysis Results")
     
     if uploaded_file is not None:
-        if st.button("🔍 Analyze Image", type="primary"):
-            with st.spinner("Analyzing image..."):
-                result = predict_face_direction(image)
+      if st.button("🔍 Analyze Image", type="primary"):
+        with st.spinner("Analyzing image..."):
+            # Prepare a safe copy for the model
+            safe_image = prepare_image_for_model(image)
+            result = predict_face_direction(safe_image)
+            
+            if result.get('success', False):
+                # Display prediction results
+                predicted_class = result['predicted_class']
+                confidence = result['confidence']
                 
-                if result.get('success', False):
-                    # Display prediction results
-                    predicted_class = result['predicted_class']
-                    confidence = result['confidence']
-                    
-                    # Show prediction with metrics
-                    col_metric1, col_metric2 = st.columns(2)
-                    with col_metric1:
-                        st.metric(label="Predicted Direction", value=predicted_class.upper())
-                    with col_metric2:
-                        st.metric(label="Confidence", value=f"{confidence:.2%}")
-                    
-                    # Show probability chart
-                    st.subheader("Class Probabilities")
-                    fig = create_confidence_plot(result['probabilities'])
-                    st.pyplot(fig)
-                    
-                    # Show detailed results
-                    with st.expander("Detailed Results"):
-                        st.json(result)
-                else:
-                    st.error(f"Prediction failed: {result.get('error', 'Unknown error')}")
+                col_metric1, col_metric2 = st.columns(2)
+                with col_metric1:
+                    st.metric(label="Predicted Direction", value=predicted_class.upper())
+                with col_metric2:
+                    st.metric(label="Confidence", value=f"{confidence:.2%}")
+                
+                st.subheader("Class Probabilities")
+                fig = create_confidence_plot(result['probabilities'])
+                st.pyplot(fig)
+                
+                with st.expander("Detailed Results"):
+                    st.json(result)
+            else:
+                st.error(f"Prediction failed: {result.get('error', 'Unknown error')}")
+
     else:
         st.info("👆 Please upload an image to get started!")
 

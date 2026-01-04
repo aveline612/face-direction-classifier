@@ -112,8 +112,23 @@ with col1:
     uploaded_file = st.file_uploader("Choose an image...", type=['jpg', 'jpeg', 'png'])
     
     if uploaded_file is not None:
-        image = Image.open(uploaded_file)
-        st.image(image, caption="Uploaded Image", width=400)
+        # Validate file size (limit to 5 MB for example)
+        if uploaded_file.size > 5 * 1024 * 1024:
+            st.error("File too large. Please upload an image under 5 MB.")
+            uploaded_file = None
+        else:
+            try:
+                # Open and validate image
+                image = Image.open(uploaded_file).convert("RGB")
+
+                # Resize image to a safe size (224x224 for ResNet)
+                image = image.resize((224, 224))
+
+                st.image(image, caption="Uploaded Image (resized to 224x224)", width=400)
+            except Exception as e:
+                st.error(f"Invalid image file: {e}")
+                uploaded_file = None
+
 
 with col2:
     st.header("Analysis Results")
@@ -148,6 +163,7 @@ with col2:
     else:
         st.info("👆 Please upload an image to get started!")
 
+
 # Sidebar with information
 st.sidebar.header("About")
 st.sidebar.info("This model uses ResNet-18 to analyze face orientation.")
@@ -161,7 +177,6 @@ st.sidebar.markdown("""
 st.sidebar.header("Tips")
 st.sidebar.markdown("""
 - Use clear, well-lit face images
-- Front-facing works best
 - Avoid extreme angles
 - Images should be at least 50x50 pixels
 """)
